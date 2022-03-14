@@ -2,22 +2,28 @@ from wordcount import load_word_counts
 import sys
 
 
-def top_two_word(counts):
+def top_n_words(counts, number_of_top_words=10):
     """
     Given a list of (word, count, percentage) tuples,
     return the top two word counts.
     """
-    limited_counts = counts[0:2]
+    limited_counts = counts[0:number_of_top_words]
     count_data = [count for (_, count, _) in limited_counts]
     return count_data
 
 
 if __name__ == '__main__':
-    input_files = sys.argv[1:]
-    print("Book\tFirst\tSecond\tRatio")
+    number_of_top_words = sys.argv[1]
+    input_files = sys.argv[2:]
+    header = "Book"
+    for i in range(int(number_of_top_words)):
+         header += ",word"+str(i+1)
+    print(header)
     for input_file in input_files:
         counts = load_word_counts(input_file)
-        [first, second] = top_two_word(counts)
+        top_words = top_n_words(counts, int(number_of_top_words))
         bookname = input_file[:-4].split("/")[-1]
-        print("%s\t%i\t%i\t%.2f" % (bookname, first, second,
-                                    float(first)/second))
+        line = bookname
+        for i in top_words:
+            line += ","+str(i)
+        print(line)

@@ -1,6 +1,6 @@
 # a list of all the books we are analyzing
 DATA = glob_wildcards('data/{book}.txt').book
-
+print(DATA)
 # this is for running on HPC resources
 localrules: all, make_archive
 
@@ -36,8 +36,10 @@ rule zipf_test:
     input:
         zipf='source/zipf_test.py',
         books=expand('processed_data/{book}.dat', book=DATA)
+    params:
+        nwords = 10
     output: 'results/results.txt'
-    shell:  'python {input.zipf} {input.books} > {output}'
+    shell:  'python {input.zipf} {params.nwords} {input.books} > {output}'
 
 # create an archive with all of our results
 rule make_archive:
