@@ -1,13 +1,11 @@
 # a list of all the books we are analyzing
 DATA = glob_wildcards('data/{book}.txt').book
 print(DATA)
-# this is for running on HPC resources
-localrules: all, make_archive
 
 # the default rule
 rule all:
     input:
-        'zipf_analysis.tar.gz'
+        'results/results.txt'
 
 # count words in one of our books
 # logfiles from each run are put in .log files"
@@ -16,7 +14,6 @@ rule count_words:
         wc='source/wordcount.py',
         book='data/{file}.txt'
     output: 'processed_data/{file}.dat'
-    threads: 4
     log: 'processed_data/{file}.log'
     shell:
         '''
@@ -25,13 +22,13 @@ rule count_words:
 
 # create a plot for each book
 rule make_plot:
-    input:
-        plotcount='source/plotcount.py',
-	book='processed_data/{file}.dat'
-    output: 'results/{file}.png'
-    shell: 'python {input.plotcount} {input.book} {output}'
+   input:
+       plotcount='source/plotcount.py',
+       book='processed_data/{file}.dat'
+   output: 'results/{file}.png'
+   shell: 'python {input.plotcount} {input.book} {output}'
 
-# generate summary table
+# generate results table
 rule zipf_test:
     input:
         zipf='source/zipf_test.py',
@@ -41,11 +38,3 @@ rule zipf_test:
     output: 'results/results.txt'
     shell:  'python {input.zipf} {params.nwords} {input.books} > {output}'
 
-# create an archive with all of our results
-rule make_archive:
-    input:
-        expand('results/{book}.png', book=DATA),
-        expand('processed_data/{book}.dat', book=DATA),
-        'results/results.txt'
-    output: 'zipf_analysis.tar.gz'
-    shell: 'tar -czvf {output} {input}'
