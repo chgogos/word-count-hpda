@@ -1,6 +1,5 @@
 # a list of all the books we are analyzing
 DATA = glob_wildcards('data/{book}.txt').book
-print(DATA)
 
 # the default rule
 rule all:
