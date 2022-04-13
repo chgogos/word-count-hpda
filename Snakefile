@@ -19,14 +19,6 @@ rule count_words:
             python {input.wc} {input.book} {output} >> {log} 2>&1
         '''
 
-# create a plot for each book
-rule make_plot:
-   input:
-       plotcount='source/plotcount.py',
-       book='processed_data/{file}.dat'
-   output: 'results/{file}.png'
-   shell: 'python {input.plotcount} {input.book} {output}'
-
 # generate results table
 rule zipf_test:
     input:
