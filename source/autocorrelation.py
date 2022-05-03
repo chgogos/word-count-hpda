@@ -18,7 +18,7 @@ def preprocess_text(text):
             clean_text.append(word)
     return clean_text
 
-def word_autocorr(word, text, timesteps):
+def word_acf(word, text, timesteps):
     """
     Calculate word-autocorrelation function for given word 
     in a text. Each word in the text corresponds to one "timestep".
@@ -33,33 +33,40 @@ def word_autocorr(word, text, timesteps):
         acf[t] /= nwords_chosen      
     return acf
     
-def word_autocorr_average(words, text, timesteps=100):
+def ave_word_acf(words, text, timesteps=100):
     """
     Calculate an average word-autocorrelation function 
     for a list of words in a text.
     """
     acf = np.zeros((len(words), timesteps))
     for n, word in enumerate(words):
-        acf[n, :] = word_autocorr(word, text, timesteps)
+        acf[n, :] = word_acf(word, text, timesteps)
     return np.average(acf, axis=0)
 
-if __name__ == '__main__':
+def setup(book, wc_book, nwords = 16):
     # load book text and preprocess it
-    book = sys.argv[1]
     text = load_text(book)
     clean_text = preprocess_text(text)
-    # load precomputed word counts and select top 10 words
-    wc_book = sys.argv[2]
-    nwords = 10
+    # load precomputed word counts and select top words
     word_count = load_word_counts(wc_book)
     top_words = [w[0] for w in word_count[:nwords]]
-    # number of "timesteps" to use in autocorrelation function
+
+    return clean_text, top_words
+
+if __name__ == '__main__':
+    book = sys.argv[1]
+    wc_book = sys.argv[2]
+    filename = sys.argv[3]    
+
+    nwords = 16
     timesteps = 100
+    clean_text, top_words = setup(book, wc_book, nwords)
+
     # compute average autocorrelation and time the execution
     t0 = time.time()
-    acf_ave = word_autocorr_average(top_words, clean_text, timesteps=100)
+    acf_ave = ave_word_acf(top_words, clean_text, timesteps=100)
     t1 = time.time()        
 
     print(f"serial time: {t1-t0}")
 
-    np.savetxt(sys.argv[3], np.vstack((np.arange(1,101), acf_ave)).T, delimiter=',')
+    np.savetxt(filename, np.vstack((np.arange(1,101), acf_ave)).T, delimiter=',')
