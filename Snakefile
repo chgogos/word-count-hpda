@@ -4,7 +4,7 @@ DATA = glob_wildcards('data/{book}.txt').book
 # the default rule
 rule all:
     input:
-        'results/results.txt'
+        'results/results.csv'
 
 # count words in one of our books
 # logfiles from each run are put in .log files"
@@ -26,6 +26,6 @@ rule zipf_test:
         books=expand('processed_data/{book}.dat', book=DATA)
     params:
         nwords = 10
-    output: 'results/results.txt'
+    output: 'results/results.csv'
     shell:  'python {input.zipf} {params.nwords} {input.books} > {output}'
 
